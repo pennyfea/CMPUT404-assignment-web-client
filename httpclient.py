@@ -18,11 +18,15 @@
 # Write your own HTTP GET and POST
 # The point is to understand what you have to send and get experience with it
 
+
+# https://stackoverflow.com/questions/19699367/unicodedecodeerror-utf-8-codec-cant-decode-byte
+
 import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
-import urllib.parse
+# import urllib.parse
+from urllib.parse import urlparse
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
@@ -33,7 +37,30 @@ class HTTPResponse(object):
         self.body = body
 
 class HTTPClient(object):
-    #def get_host_port(self,url):
+    def get_host_port(self,url):
+
+        URL = urlparse(url)
+        host = URL.hostname
+        port = URL.port
+        path = URL.path
+        scheme = URL.scheme
+
+        if port is None  and scheme == 'http':
+            port = 80
+        if port is None and scheme == 'https':
+            port = 443
+
+        if len(path) == 0:
+            path = "/"
+
+        print(host)
+        print(port)
+        print(path)
+        print(scheme)
+
+        return host, port, path
+
+
 
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -41,13 +68,16 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        return None
+        code = int(data.split()[1])
+        return code
 
     def get_headers(self,data):
-        return None
+        headers = data.split('\r\n\r\n')[0]
+        return headers
 
     def get_body(self, data):
-        return None
+        body = data.split('\r\n\r\n')[1]
+        return body
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -65,11 +95,19 @@ class HTTPClient(object):
                 buffer.extend(part)
             else:
                 done = not part
-        return buffer.decode('utf-8')
+        return buffer.decode('"ISO-8859-1')
 
     def GET(self, url, args=None):
-        code = 500
-        body = ""
+
+        host, port, path = self.get_host_port(url)
+        self.connect(host, port)
+        request =  ('GET %s HTTP/1.0\r\nHost: %s \r\n\r\n'%(path, host))
+        self.sendall(request)
+        data = self.recvall(self.socket)
+        # print(data)
+        code = self.get_code(data)
+        body = self.get_body(data)
+
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
