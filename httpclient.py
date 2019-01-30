@@ -20,13 +20,13 @@
 
 
 # https://stackoverflow.com/questions/19699367/unicodedecodeerror-utf-8-codec-cant-decode-byte
-
+# https://stackoverflow.com/questions/978061/http-get-with-request-body
 import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
 # import urllib.parse
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
@@ -37,8 +37,10 @@ class HTTPResponse(object):
         self.body = body
 
 class HTTPClient(object):
-    def get_host_port(self,url):
 
+    def get_host_port(self,url):
+    
+        # URL: scheme://netloc/path;parameters?query#fragment
         URL = urlparse(url)
         host = URL.hostname
         port = URL.port
@@ -58,6 +60,8 @@ class HTTPClient(object):
         print(path)
         print(scheme)
 
+
+
         return host, port, path
 
 
@@ -72,7 +76,7 @@ class HTTPClient(object):
         return code
 
     def get_headers(self,data):
-        headers = data.split('\r\n\r\n')[0]
+        headers = data.split('\r\n\r\n]')[0]
         return headers
 
     def get_body(self, data):
@@ -101,18 +105,32 @@ class HTTPClient(object):
 
         host, port, path = self.get_host_port(url)
         self.connect(host, port)
-        request =  ('GET %s HTTP/1.0\r\nHost: %s \r\n\r\n'%(path, host))
+        request =  ('GET %s HTTP/1.1\r\nConnection: close\r\nHost: %s \r\n\r\n'%(path, host))
         self.sendall(request)
         data = self.recvall(self.socket)
-        # print(data)
+        print(data)
         code = self.get_code(data)
         body = self.get_body(data)
 
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        code = 500
-        body = ""
+
+        parameter = ""
+
+        if args != None:
+            parameter = urlencode(args)
+        
+        print("----------------------------------------------parameter", parameter)
+
+        host, port, path = self.get_host_port(url)
+        self.connect(host, port)
+        request = ('POST %s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %s\r\n\r\n%s' % (path, host, str(len(parameter)), parameter))
+        self.sendall(request)
+        data = self.recvall(self.socket)
+        print(data)
+        code = self.get_code(data)
+        body = self.get_body(data)
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
