@@ -18,14 +18,21 @@
 # Write your own HTTP GET and POST
 # The point is to understand what you have to send and get experience with it
 
+#***************************************************************************************
+# Reason: Decoding information read by the socket
+# Availability: https://stackoverflow.com/questions/19699367/unicodedecodeerror-utf-8-codec-cant-decode-byte
+# 
+# Reason: Understanding & structuring request bodies
+# Availability: https://stackoverflow.com/questions/978061/http-get-with-request-body
+#
+# Reason: Understanding GET & POST request bodies
+# Availability: https://developer.mozilla.org/en-US/
+#***************************************************************************************
 
-# https://stackoverflow.com/questions/19699367/unicodedecodeerror-utf-8-codec-cant-decode-byte
-# https://stackoverflow.com/questions/978061/http-get-with-request-body
 import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
-# import urllib.parse
 from urllib.parse import urlparse, urlencode
 
 def help():
@@ -54,13 +61,13 @@ class HTTPClient(object):
 
         if len(path) == 0:
             path = "/"
+        
+        # Debugging purposes
 
-        print(host)
-        print(port)
-        print(path)
-        print(scheme)
-
-
+        # print(host)
+        # print(port)
+        # print(path)
+        # print(scheme)
 
         return host, port, path
 
@@ -104,13 +111,28 @@ class HTTPClient(object):
     def GET(self, url, args=None):
 
         host, port, path = self.get_host_port(url)
+        # Connect to the server socket
         self.connect(host, port)
+
+        #Request body
         request =  ('GET %s HTTP/1.1\r\nConnection: close\r\nHost: %s \r\n\r\n'%(path, host))
+        
+        # Send the request body to the server 
         self.sendall(request)
+
+        # Receive all data from the server socket
         data = self.recvall(self.socket)
-        print(data)
+
+        # Call close after you received data from the socket.
+        self.close()
+
+        headers = self.get_headers(data)
         code = self.get_code(data)
         body = self.get_body(data)
+       
+        # print(code)
+        # print(headers)
+        # print(body)
 
         return HTTPResponse(code, body)
 
@@ -121,16 +143,36 @@ class HTTPClient(object):
         if args != None:
             parameter = urlencode(args)
         
-        print("----------------------------------------------parameter", parameter)
+        # print("----------------------------------------------parameter", parameter)
 
         host, port, path = self.get_host_port(url)
+
+        # Connect to the server socket
         self.connect(host, port)
+
+        # Request body
         request = ('POST %s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: %s\r\n\r\n%s' % (path, host, str(len(parameter)), parameter))
+        
+
+        # Send the request body to the server 
         self.sendall(request)
+
+        # Receive all data from the server socket
         data = self.recvall(self.socket)
-        print(data)
+
+        # Call close after you received data from the socket.
+        self.close()
+
+
+        headers = self.get_headers(data)
         code = self.get_code(data)
         body = self.get_body(data)
+       
+        # print(code)
+        # print(headers)
+        # print(body)
+
+
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
