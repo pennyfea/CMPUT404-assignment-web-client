@@ -45,19 +45,22 @@ class HTTPResponse(object):
 
 class HTTPClient(object):
 
-    def get_host_port(self,url):
+    def get_host_port_path(self,url):
     
         # URL: scheme://netloc/path;parameters?query#fragment
         URL = urlparse(url)
         host = URL.hostname
         port = URL.port
         path = URL.path
-        scheme = URL.scheme
+        # scheme = URL.scheme
 
-        if port is None  and scheme == 'http':
+        # if port is None  and scheme == 'http':
+        #     port = 80
+        # if port is None and scheme == 'https':
+        #     port = 443
+
+        if port is None:
             port = 80
-        if port is None and scheme == 'https':
-            port = 443
 
         if len(path) == 0:
             path = "/"
@@ -110,7 +113,7 @@ class HTTPClient(object):
 
     def GET(self, url, args=None):
 
-        host, port, path = self.get_host_port(url)
+        host, port, path = self.get_host_port_path(url)
         # Connect to the server socket
         self.connect(host, port)
 
@@ -145,7 +148,7 @@ class HTTPClient(object):
         
         # print("----------------------------------------------parameter", parameter)
 
-        host, port, path = self.get_host_port(url)
+        host, port, path = self.get_host_port_path(url)
 
         # Connect to the server socket
         self.connect(host, port)
