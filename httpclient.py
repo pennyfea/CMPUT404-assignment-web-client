@@ -19,7 +19,7 @@
 # The point is to understand what you have to send and get experience with it
 
 #***************************************************************************************
-# Reason: Decoding information read by the socket
+# Reason: Decoding information read by the socket... Changed it back to 'utf-8'. Worked on lab machine
 # Availability: https://stackoverflow.com/questions/19699367/unicodedecodeerror-utf-8-codec-cant-decode-byte
 # 
 # Reason: Understanding & structuring request bodies
@@ -109,7 +109,7 @@ class HTTPClient(object):
                 buffer.extend(part)
             else:
                 done = not part
-        return buffer.decode('"ISO-8859-1')
+        return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
 
