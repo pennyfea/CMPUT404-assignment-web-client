@@ -27,6 +27,9 @@
 #
 # Reason: Understanding GET & POST request bodies
 # Availability: https://developer.mozilla.org/en-US/
+#
+# Reason: Sending a request body
+# Availability: https://www.programcreek.com/python/example/93088/http.client.HTTPResponse
 #***************************************************************************************
 
 import sys
@@ -38,11 +41,15 @@ from urllib.parse import urlparse, urlencode
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
 
+# TODO: Print HTTPResponse object
 class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = code
         self.body = body
 
+    # def __str__(self):
+    #     return "Code: {}\nBody:\n{} \n\n".format(self.code, self.body)
+    
 class HTTPClient(object):
 
     def get_host_port_path(self,url):
@@ -75,7 +82,7 @@ class HTTPClient(object):
         return host, port, path
 
 
-
+    # TODO: Error checking
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((host, port))
@@ -132,6 +139,8 @@ class HTTPClient(object):
         headers = self.get_headers(data)
         code = self.get_code(data)
         body = self.get_body(data)
+
+        print("Code: {}\nBody:\n{} \n\n".format(code, body))
        
         # print(code)
         # print(headers)
@@ -166,6 +175,8 @@ class HTTPClient(object):
         # Call close after you received data from the socket.
         self.close()
 
+        
+
 
         headers = self.get_headers(data)
         code = self.get_code(data)
@@ -174,6 +185,7 @@ class HTTPClient(object):
         # print(code)
         # print(headers)
         # print(body)
+        print("Code: {}\nBody:\n{} \n\n".format(code, body))
 
 
         return HTTPResponse(code, body)
@@ -186,6 +198,7 @@ class HTTPClient(object):
     
 if __name__ == "__main__":
     client = HTTPClient()
+
     command = "GET"
     if (len(sys.argv) <= 1):
         help()
