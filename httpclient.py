@@ -139,7 +139,8 @@ class HTTPClient(object):
         code = self.get_code(data)
         body = self.get_body(data)
 
-        print("Code: {}\nBody:\n{} \n\n".format(code, body))
+        # print("Code: {}\nBody:\n{} \n\n".format(code, body))
+        print("\n{}\n{} \n\n".format(code, body))
        
         # print(code)
         # print(headers)
@@ -184,7 +185,8 @@ class HTTPClient(object):
         # print(code)
         # print(headers)
         # print(body)
-        print("Code: {}\nBody:\n{} \n\n".format(code, body))
+        # print("Code: {}\nBody:\n{} \n\n".format(code, body))
+        print("\n{}\n{} \n\n".format(code, body))
 
 
         return HTTPResponse(code, body)
