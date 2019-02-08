@@ -82,7 +82,6 @@ class HTTPClient(object):
         return host, port, path
 
 
-    # TODO: Error checking
     def connect(self, host, port):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((host, port))
